@@ -14,7 +14,7 @@ namespace YimMenu::Features
 	static_assert(SCR_SIZEOF(BASKET_ITEM_DATA) == 4);
 
 
-	constexpr joaat_t kFreePurchaseCoupon = "PO_COUPON_CAR_XMAS2017"_J;
+	constexpr joaat_t FreePurchaseCoupon = "PO_COUPON_CAR_XMAS2017"_J;
 
 
 	static bool IsPropertyAction(joaat_t action)
@@ -24,7 +24,7 @@ namespace YimMenu::Features
 	}
 
 
-	constexpr joaat_t kDiscountModifiers[] = {
+	constexpr joaat_t DiscountModifiers[] = {
 	    "PM_CARMOD_BUYNOW"_J,
 	    "PM_CARMOD_TUNER_OWNER_DISCOUNT"_J,
 	    "PM_CARMOD_VINEWOOD_GARAGE_DISCOUNT"_J,
@@ -83,12 +83,12 @@ namespace YimMenu::Features
 
 	static bool IsDiscountModifier(joaat_t itemId)
 	{
-		return std::ranges::contains(kDiscountModifiers, itemId);
+		return std::ranges::contains(DiscountModifiers, itemId);
 	}
 
 
-	static joaat_t g_CurrentBasketAction = 0;
-	static joaat_t g_CurrentBasketCategory = 0;
+	static joaat_t CurrentBasketAction = 0;
+	static joaat_t CurrentBasketCategory = 0;
 
 
 	static void NetGameServerBasketStartHook(rage::scrNativeCallContext* ctx);
@@ -128,8 +128,8 @@ namespace YimMenu::Features
 
 	static void NetGameServerBasketStartHook(rage::scrNativeCallContext* ctx)
 	{
-		g_CurrentBasketCategory = ctx->GetArg<joaat_t>(1);
-		g_CurrentBasketAction = ctx->GetArg<joaat_t>(2);
+		CurrentBasketCategory = ctx->GetArg<joaat_t>(1);
+		CurrentBasketAction = ctx->GetArg<joaat_t>(2);
 
 		NativeInvoker::GetNativeHandler(
 		    NativeIndex::NET_GAMESERVER_BASKET_START)(ctx);
@@ -152,7 +152,7 @@ namespace YimMenu::Features
 		const bool freeShopping = _FreeShopping.GetState();
 
 
-		if (freeShopping && IsPropertyAction(g_CurrentBasketAction) && price > 0)
+		if (freeShopping && IsPropertyAction(CurrentBasketAction) && price > 0)
 		{
 
 		}
@@ -175,7 +175,7 @@ namespace YimMenu::Features
 		if (applyCoupon && itemAdded)
 		{
 			BASKET_ITEM_DATA couponData{};
-			couponData.Key = kFreePurchaseCoupon;
+			couponData.Key = FreePurchaseCoupon;
 			couponData.Item = itemId;
 			couponData.Price = 0;
 			couponData.StatValue = itemData->StatValue;
