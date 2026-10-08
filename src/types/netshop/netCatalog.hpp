@@ -32,7 +32,7 @@ namespace rage
 	static_assert(offsetof(netCatalogNode, m_Next) == 0x10);
 	static_assert(offsetof(netCatalogNode, m_Item) == 0x20);
 
-	class NetCatalog : public CatalogCacheListener
+	class netCatalog : public CatalogCacheListener
 	{
 	public:
 		char pad_0008[0x28];                 // 0x08 to 0x2F

@@ -1,7 +1,7 @@
 #include "core/commands/BoolCommand.hpp"
 #include "game/backend/NativeHooks.hpp"
 #include "game/gta/Natives.hpp"
-
+#include "types/netshop/netCatalog.hpp"
 namespace YimMenu::Features
 {
 	struct BASKET_ITEM_DATA
@@ -22,6 +22,18 @@ namespace YimMenu::Features
 		return action == "NET_SHOP_ACTION_BUY_PROPERTY"_J
 		    || action == "NET_SHOP_ACTION_BUY_WAREHOUSE"_J;
 	}
+
+    static int GetStatValueFromHash(joaat_t itemHash)
+	{
+
+		auto* catalog = Pointers.NetCatalog;
+		if (!catalog)
+			return -1;
+
+		auto* item = Pointers.GetCatalogItem(catalog, &itemHash);
+		return item ? item->m_StatValue : -1;
+	}
+
 
 
 	constexpr joaat_t DiscountModifiers[] = {
@@ -154,7 +166,34 @@ namespace YimMenu::Features
 
 		if (freeShopping && IsPropertyAction(CurrentBasketAction) && price > 0)
 		{
+			const int statValue = GetStatValueFromHash(static_cast<joaat_t>(itemData->Item));
 
+			if (statValue >= 0)
+			{
+				auto* catalog = Pointers.NetCatalog;
+				joaat_t bestHash = 0;
+				int bestPrice = INT_MAX;
+
+				catalog->ForEachItem([&](const rage::netCatalogBaseItem& entry) {
+					if (entry.m_StatValue != statValue)
+						return;
+					if (entry.m_Price < 0)
+						return;
+					if (entry.m_Price >= bestPrice)
+						return;
+					bestHash = entry.m_Hash;
+					bestPrice = entry.m_Price;
+				});
+
+				if (bestHash)
+				{
+					itemData->Item = bestHash;
+					itemData->Price = bestPrice;
+				}
+			}
+
+			ctx->SetReturnValue(callOriginal(itemData));
+			return;
 		}
 
 
